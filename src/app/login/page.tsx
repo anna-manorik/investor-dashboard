@@ -7,9 +7,15 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { AuthUser } from '@/types/Props';
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useUser } from '../context/UserContext';
+// import { signOut } from "firebase/auth";
+import { toast } from "react-toastify";
+import { useRouter } from 'next/navigation';
 
 const validationSchema = Yup.object({
-    login: Yup.string()
+    email: Yup.string()
       .email('invalid email')
       .required('*required'),
     password: Yup.string()
@@ -20,26 +26,26 @@ const validationSchema = Yup.object({
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false)
     const { data: session } = useSession();
+    const router = useRouter();
+    
+    const handleLogin = async (values: AuthUser, actions: FormikHelpers<AuthUser>) => {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        actions.resetForm();
+        toast.success(`Welcome, ${values.email}! You was logged!`);
+        router.push('/')
+    };
 
-     const handleLogin = (values: AuthUser, actions: FormikHelpers<AuthUser>) => {
-            console.log('logged111111')
-        };
+    const handleSigninGoogle = () => {
+        signIn('google');
+        router.push('/')
+    }
     
     return (
-        <>
-        {session ? (
-            <div className="flex items-center gap-4">
-            <p>Привіт, {session.user?.name}</p>
-            <button onClick={() => signOut()} className="text-red-600 hover:underline">Вийти</button>
-            </div>
-        ) : (
-            <button onClick={() => signIn('google')} className="bg-blue-600 text-white px-4 py-2 rounded-md">
-            Увійти через Google
-            </button>
-        )}
-        <Formik initialValues={{login: '', password: ''}} onSubmit={(values, actions) => {handleLogin(values, actions)}} validationSchema={validationSchema}>
+        <div className='flex flex-col items-center'>
+        
+        <Formik initialValues={{email: '', password: ''}} onSubmit={(values, actions) => {handleLogin(values, actions)}} validationSchema={validationSchema}>
                     <Form className="flex flex-col mb-10 max-w-md mx-auto p-4 bg-white rounded shadow-md text-gray-900">
-                        <Field as="input" name="login" type="email" placeholder="Login" className="h-10 border-4 border-yellow-400" />
+                        <Field as="input" name="email" type="email" placeholder="email" className="h-10 border-4 border-yellow-400" />
                         <ErrorMessage name="login" component="div" className="text-red-500 text-sm" />
                         <div className="relative">
                             <Field as="input" name="password" type={showPassword ? 'text' : 'password'} placeholder="Password" className="h-10 border-4 border-yellow-400" />
@@ -56,11 +62,21 @@ const Login = () => {
                         </div>
 
                         <button type="submit" onClick={() => handleLogin} className="h-10 border-4 border-yellow-400 rounded-xl bg-yellow-300 font-bold">LOG IN</button>
+                        
                     </Form>
                 </Formik>
-
-                <Link href="/register" className="flex items-center gap-2 text-xl font-bold text-white-600">ЗАРЕЄСТРУВАТИСЬ</Link>
-                </>
+                {/* {session ? (
+                    <div className="flex items-center gap-4">
+                    <p>Привіт, {session.user?.name}</p>
+                    <button onClick={() => signOut()} className="text-red-600 hover:underline">Вийти</button>
+                    </div>
+                ) : ( */}
+                    <button onClick={handleSigninGoogle} className="w-100 bg-blue-600 text-white px-4 py-2 rounded-md mb-3">
+                    Увійти через Google
+                    </button>
+                 {/* )} */}
+                <Link href="/register" className="w-100 bg-green-600 text-white px-4 py-2 rounded-md text-center">ЗАРЕЄСТРУВАТИСЬ</Link>
+                </div>
     )
 }
 

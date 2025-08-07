@@ -6,9 +6,12 @@ import * as Yup from 'yup';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { AuthUser } from '@/types/Props';
 import Link from 'next/link';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc } from 'firebase/firestore';
 
 const validationSchema = Yup.object({
-    login: Yup.string()
+    email: Yup.string()
       .email('invalid email')
       .required('*required'),
     password: Yup.string()
@@ -19,15 +22,32 @@ const validationSchema = Yup.object({
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false)
 
-     const handleSignup = (values: AuthUser, actions: FormikHelpers<AuthUser>) => {
-            console.log('handleSignup!!!!!!!!!')
-        };
+    const handleSignup = async (values: AuthUser, actions: FormikHelpers<AuthUser>) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            const user = userCredential.user;
+
+            await setDoc(doc(db, 'users', user.uid), {
+                email: user.email,
+                role: 'user',
+                accountType: 'InvestPro',
+                createdAt: new Date(),
+            });
+
+            console.log('Користувач успішно зареєстрований:', user.email);
+            console.log('Дані користувача збережені у Firestore під UID:', user.uid);
+            return user;
+        } catch (error) {
+            console.error('Помилка при реєстрації або записі в Firestore:', error);
+        }
+    };
     
     return (
             <>
-                <Formik initialValues={{login: '', password: ''}} onSubmit={(values, actions) => {handleSignup(values, actions)}} validationSchema={validationSchema}>
+            <h2>ЗАРЕЄСТРУВАТИСЬ</h2>
+                <Formik initialValues={{email: '', password: ''}} onSubmit={(values, actions) => {handleSignup(values, actions)}} validationSchema={validationSchema}>
                     <Form className="flex flex-col mb-10 max-w-md mx-auto p-4 bg-white rounded shadow-md text-gray-900">
-                        <Field as="input" name="login" type="email" placeholder="Login" className="h-10 border-4 border-yellow-400" />
+                        <Field as="input" name="email" type="email" placeholder="email" className="h-10 border-4 border-yellow-400" />
                         <ErrorMessage name="login" component="div" className="text-red-500 text-sm" />
                         <div className="relative">
                             <Field as="input" name="password" type={showPassword ? 'text' : 'password'} placeholder="Password" className="h-10 border-4 border-yellow-400" />
@@ -46,7 +66,6 @@ const Register = () => {
                         <button type="submit" onClick={() => handleSignup} className="h-10 border-4 border-yellow-400 rounded-xl bg-yellow-300 font-bold">SIGN UP</button>
                     </Form>
                 </Formik>
-                <Link href="/register" className="flex items-center gap-2 text-xl font-bold text-white-600">ЗАРЕЄСТРУВАТИСЬ</Link>
             </>
     )
 }

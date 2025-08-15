@@ -79,7 +79,7 @@ export default function Header() {
         {/* Кнопка входу */}
         {session || user 
         ? <div className="flex items-center text-grey-800 hidden md:block">
-                        <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p>
+                        <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p><br></br>
                         <button onClick={handleSignOut} className="text-red-600 hover:underline">Вийти</button>
                       </div>
         : 
@@ -135,7 +135,7 @@ export default function Header() {
 
           {session || user 
           ? <div className="flex items-center text-grey-800 md:hidden">
-                          <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p>
+                          <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p><br></br>
                           <button onClick={handleSignOut} className="text-red-600 hover:underline">Вийти</button>
                         </div>
           : 

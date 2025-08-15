@@ -25,6 +25,7 @@ const handler = NextAuth({
             role: 'user',
             accountType: 'Google',
             createdAt: new Date(),
+            portfolio: [],
           });
           console.log('👤 Новий юзер створений у Firestore:', user.email);
         } else {

@@ -32,6 +32,7 @@ const Register = () => {
                 role: 'user',
                 accountType: 'InvestPro',
                 createdAt: new Date(),
+                portfolio:[],
             });
 
             console.log('Користувач успішно зареєстрований:', user.email);
@@ -47,6 +48,7 @@ const Register = () => {
             <h2>ЗАРЕЄСТРУВАТИСЬ</h2>
                 <Formik initialValues={{email: '', password: ''}} onSubmit={(values, actions) => {handleSignup(values, actions)}} validationSchema={validationSchema}>
                     <Form className="flex flex-col mb-10 max-w-md mx-auto p-4 bg-white rounded shadow-md text-gray-900">
+                        <Field as="input" name="nickname" type="text" placeholder="Nickname" className="h-10 border-4 border-yellow-400" />
                         <Field as="input" name="email" type="email" placeholder="email" className="h-10 border-4 border-yellow-400" />
                         <ErrorMessage name="login" component="div" className="text-red-500 text-sm" />
                         <div className="relative">

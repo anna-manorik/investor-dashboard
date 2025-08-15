@@ -3,20 +3,42 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { signOut as nextAuthSignOut, useSession } from 'next-auth/react';
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { useUser } from '@/app/context/UserContext';
+import { auth } from '@/lib/firebase';
+import { toast } from 'react-toastify';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const currentLink = usePathname()
-
-  console.log('11111', currentLink)
+  const currentLink = usePathname();
+  const { data: session } = useSession();
+  const { user, loading } = useUser();
+  const router = useRouter();
 
   const navLinks = [
-    { name: 'Головна', href: '/' },
-    { name: 'Портфель', href: '/portfolio' },
-    { name: 'Блог', href: '/blog' },
-    { name: 'Налаштування', href: '/settings' },
+    { name: 'Головна', href: '/', visibility: 'all' },
+    { name: 'Портфель', href: '/portfolio', visibility: 'users' },
+    { name: 'Блог', href: '/blog', visibility: 'all' },
+    { name: 'Налаштування', href: '/settings', visibility: 'users' },
   ];
+
+  const handleSignOut = () => {
+    try{
+      if (session) {
+        nextAuthSignOut()
+      } else if (user) {
+        firebaseSignOut(auth)
+      }
+      toast.success('You have logged out succesfully!')
+      router.push('/login')
+    } catch {
+      toast.error('Opps, you cant log out ')
+      console.error('Error during logout')
+    }
+    
+  }
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -37,7 +59,15 @@ export default function Header() {
 
         {/* Навігація */}
         <nav className="hidden md:flex gap-6">
-          {navLinks.map((link) => (
+          {session !== null || user
+          ? navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={currentLink === link.href 
+            ? 'text-green-600 transition' 
+            : 'text-gray-700 hover:text-green-600 transition'}>
+              {link.name}
+            </Link>
+          ))
+        : navLinks.filter((link) => link.visibility === 'all').map((link) => (
             <Link key={link.href} href={link.href} className={currentLink === link.href 
             ? 'text-green-600 transition' 
             : 'text-gray-700 hover:text-green-600 transition'}>
@@ -47,6 +77,12 @@ export default function Header() {
         </nav>
 
         {/* Кнопка входу */}
+        {session || user 
+        ? <div className="flex items-center text-grey-800 hidden md:block">
+                        <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p>
+                        <button onClick={handleSignOut} className="text-red-600 hover:underline">Вийти</button>
+                      </div>
+        : 
         <div className="hidden md:block">
           <Link
             href="/login"
@@ -55,6 +91,8 @@ export default function Header() {
             Увійти / Кабінет
           </Link>
         </div>
+        }
+        
 
         {/* Мобільне меню */}
         <button
@@ -69,7 +107,20 @@ export default function Header() {
       {/* Мобільне меню випадає */}
       {menuOpen && (
         <div className="absolute bg-white md:hidden px-4 pb-4 space-y-2 ">
-          {navLinks.map((link) => (
+          {session !== null || user
+          ? navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={currentLink === link.href 
+                ? "block text-green-600 transition" 
+                : "block text-gray-700 hover:text-green-600 transition"}
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))
+          : navLinks.filter((link) => link.visibility === 'all').map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -81,15 +132,25 @@ export default function Header() {
               {link.name}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="block mt-2 bg-green-600 text-white px-4 py-2 rounded-xl text-center hover:bg-green-700 transition"
-            onClick={() => setMenuOpen(false)}
-          >
-            Увійти / Кабінет
-          </Link>
+
+          {session || user 
+          ? <div className="flex items-center text-grey-800 md:hidden">
+                          <p className="text-grey-800">Привіт, {session ? session.user?.name : user?.email}</p>
+                          <button onClick={handleSignOut} className="text-red-600 hover:underline">Вийти</button>
+                        </div>
+          : 
+            <Link
+              href="/login"
+              className="block mt-2 bg-green-600 text-white px-4 py-2 rounded-xl text-center hover:bg-green-700 transition"
+              onClick={() => setMenuOpen(false)}
+            >
+              Увійти / Кабінет
+            </Link>
+          }
         </div>
       )}
+
+                      
     </header>
   );
 }

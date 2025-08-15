@@ -35,6 +35,7 @@ export default function Footer() {
             <li><Link href="/privacy" className="hover:text-green-600" rel="noopener noreferrer">Політика конфіденційності</Link></li>
             <li><Link href="/terms" className="hover:text-green-600" rel="noopener noreferrer">Умови використання</Link></li>
             <li><Link href="/cookies" className="hover:text-green-600" rel="noopener noreferrer">Політика cookie</Link></li>
+            <li><Link href="/register" className="hover:text-green-600" rel="noopener noreferrer">Зареєструватись</Link></li>
           </ul>
         </div>
 

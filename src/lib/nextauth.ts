@@ -10,7 +10,9 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-
+  pages: {
+    signIn: "/login", // 👉 сюди буде редірект замість /api/auth/signin
+  },
   callbacks: {
     async signIn({ user }) {
       try {

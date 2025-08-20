@@ -42,7 +42,7 @@ const Login = () => {
     
     return (
         <div className='flex flex-col items-center'>
-        
+        <p className='text-white mb-5'>Увійдіть або зареєструйтесь</p>
         <Formik initialValues={{email: '', password: ''}} onSubmit={(values, actions) => {handleLogin(values, actions)}} validationSchema={validationSchema}>
                     <Form className="flex flex-col mb-10 max-w-md mx-auto p-4 bg-white rounded shadow-md text-gray-900">
                         <Field as="input" name="email" type="email" placeholder="email" className="h-10 border-4 border-yellow-400" />

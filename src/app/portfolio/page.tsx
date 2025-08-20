@@ -10,6 +10,7 @@ import { db } from "@/lib/firebase";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const initialValues: PortfolioProps = {
                 type: "" as AssetType,
@@ -39,9 +40,11 @@ const validationSchema = Yup.object({
             }
 
 export default function Portfolio() {
-    const { user, loading } = useUser();
+    const { user } = useUser();
     const [portfolio, setPortfolio] = useState<PortfolioProps[]>()
     const [stockPrices, setStockPrices] = useState<StockPriceProps[]>([])
+
+    // if (!user) return <p className="text-orange-900">Loading...</p>
     
         const fetchPortfolio = async () => {
             if (!user?.uid) return;
@@ -91,6 +94,8 @@ export default function Portfolio() {
             }
         }
 
+
+  
     useEffect(() => {
         fetchPortfolio();
     }, [user?.uid]);
@@ -310,3 +315,7 @@ export default function Portfolio() {
     </div>
   );
 }
+function useAuth(): { user: any; } {
+    throw new Error("Function not implemented.");
+}
+

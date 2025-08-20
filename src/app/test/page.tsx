@@ -1,99 +1,66 @@
-'use client'
-
-import { useEffect, useMemo, useState } from "react"
-
-// Реалізувати компонент для відображення списку користувачів
+// Завдання: Реалізувати дашборд для систем кондиціонування повітря
 // Мета:
-// Створити компонент UserList, який отримує список користувачів з API, дозволяє шукати по імені та переглядати детальну інформацію про обраного користувача.
+// Створити компонент ACSystemDashboard, який відображає список систем кондиціонування повітря з можливістю вмикання/вимикання кожної з них, а також виводить ключову інформацію про стан систем.
 
 
+import ACSystemDashboard, { ACSystemData } from "./component";
 
 // Технічні вимоги:
-// Отримання даних з API:
-// Зробити GET-запит до https://jsonplaceholder.typicode.com/users.
-// Зберегти отриманий список користувачів у стані.
-// Вивід списку користувачів:
-// Відобразити імена всіх користувачів у вигляді списку.
-// Кожен елемент списку має бути клікабельним.
-// Пошук користувача:
-// Реалізувати інпут для пошуку по імені.
-// Пошук повинен бути нечутливим до регістру.
-// Фільтрація має відбуватися в реальному часі (під час вводу).
-// Виведення деталей користувача:
-// При кліку на користувача у списку — показати детальну інформацію:
-// Ім’я
-// Email
-// Username
-// Додати кнопку для закриття блоку з деталями користувача.
-// Обробка станів:
-// Виводити повідомлення Loading... під час завантаження.
-// Виводити повідомлення про помилку, якщо запит завершився з помилкою.
-// Оптимізація:
-// Використати useMemo для оптимізації фільтрації списку.
+// Типізація:
+// Типізувати дані про кожну систему кондиціонування (ACSystemData), включно з:
+// id (рядок)
+// location (місце розташування, рядок)
+// temperature (температура, число)
+// humidity (вологість, число)
+// energyConsumption (енергоспоживання, число)
+// isActive (стан увімкнено/вимкнено, булеве значення)
+// Ініціалізація даних:
+// Компонент повинен приймати список систем як проп data і зберігати його у локальному стані useState.
+// Виведення інформації:
+// Для кожної системи відобразити:
+// Місцезнаходження (location)
+// Температуру (temperature) з підсвічуванням кольором:
+// 27°C — червоний
+// 25–27°C — помаранчевий
+// < 25°C — зелений
+// Вологість (humidity)
+// Енергоспоживання (energyConsumption)
+// Статус (ON/OFF)
+// Кнопку перемикання статусу (Turn ON/OFF)
+// Функціональність перемикання статусу:
+// При натисканні на кнопку змінювати стан isActive відповідної системи (вмикати/вимикати).
+// Стилизація:
+// Відобразити кожну систему у вигляді окремої картки зі стилями: рамка, відступи, ширина блоку, border-radius.
+// Всі картки повинні розташовуватись у flex-контейнері з обгортанням (flex-wrap) і відступами між ними (gap).
 
-type User = {
-    id: number,
-    name: string,
-    username: string,
-    email: string,
-}
 
-const UserList = () => {
-    const [ error, setErrorMessege ] = useState<string | null>(null)
-    const [ usersList, setUsersList] = useState<User[]>([])
-    const [ showUserInfo, setShowUserInfo ] = useState<User | null>(null)
-    const [ search, setSearch ] = useState<string>('')
+export const exampleData: ACSystemData[] = [
+  {
+    id: 'ac-101',
+    location: 'Room 101',
+    temperature: 22.5,
+    humidity: 45,
+    energyConsumption: 3.2,
+    isActive: true,
+  },
+  {
+    id: 'ac-102',
+    location: 'Room 102',
+    temperature: 25,
+    humidity: 50,
+    energyConsumption: 2.8,
+    isActive: false,
+  },
+  {
+    id: 'ac-103',
+    location: 'Room 103',
+    temperature: 28,
+    humidity: 50,
+    energyConsumption: 2.8,
+    isActive: false,
+  },
+];
 
-    
+const App2 = () => <ACSystemDashboard data={exampleData} />
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch('https://jsonplaceholder.typicode.com/users')
-
-                const data = await response.json()
-                setUsersList(data)
-
-                console.log('success', data)
-            } catch (error) {
-                setErrorMessege((error as Error).message)
-            } finally {
-
-            }
-            
-        }
-
-        fetchUsers()
-        
-    }, [])
-
-    const searchUsers = useMemo(() => {
-        return usersList.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
-    }, [search, usersList])
-
-    // if(error) error
-
-    return (
-        <>
-            <input type='text' value={search} onChange={(e) => setSearch(e.target.value)} />
-
-            <ul>
-                {searchUsers.map(user => (
-                    <li key={user.id} className="color-white cursor-pointer" onClick={() => setShowUserInfo(user)}>{user.name}</li>
-                ))}
-            </ul>
-
-            {showUserInfo && (
-                <div>
-                    <p>{showUserInfo.name}</p>
-                    <p>{showUserInfo.username}</p>
-                    <p>{showUserInfo.email}</p>
-                    <button onClick={() => setShowUserInfo(null)}>HIDE</button>
-                </div>
-            )}
-            
-        </>
-    )
-}
-
-export default UserList
+export default App2

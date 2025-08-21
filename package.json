@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "finnhub": "^2.0.7",
     "firebase": "^12.0.0",
     "formik": "^2.4.6",
     "heroicons": "^2.2.0",

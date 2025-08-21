@@ -30,6 +30,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           role: userData?.role,
           accountType: userData?.accountType,
           image: userData?.image,
+          // portfolio:[],
         });
       } else {
         setUser(null);

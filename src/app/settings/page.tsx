@@ -42,9 +42,9 @@ export default function Settings() {
           <tbody>
             <tr className="border-b">
               <td colSpan={2} className="p-4 text-center mx-auto">
-                {user?.image ? (
+                {currentUser?.image ? (
                   <Image
-                    src={user.image}
+                    src={currentUser.image}
                     alt="User Avatar"
                     className="w-16 h-16 rounded-full object-cover mx-auto"
                     width={100}
@@ -60,12 +60,12 @@ export default function Settings() {
 
             <tr className="border-b">
               <td className="p-4 font-semibold">Ім’я</td>
-              <td className="p-4">{user?.name ?? 'Невідомо'}</td>
+              <td className="p-4">{currentUser?.name ?? 'Невідомо'}</td>
             </tr>
 
             <tr className="border-b">
               <td className="p-4 font-semibold">Email (акаунт)</td>
-              <td className="p-4">{user?.email ?? 'Невідомо'}</td>
+              <td className="p-4">{currentUser?.email ?? 'Невідомо'}</td>
             </tr>
 
             <tr className="border-b">

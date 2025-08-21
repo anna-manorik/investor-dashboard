@@ -1,66 +1,64 @@
-// Завдання: Реалізувати дашборд для систем кондиціонування повітря
-// Мета:
-// Створити компонент ACSystemDashboard, який відображає список систем кондиціонування повітря з можливістю вмикання/вимикання кожної з них, а також виводить ключову інформацію про стан систем.
+// Завдання: Todo App 
+// Створити односторінковий «Todo App», який дозволяє:
+'use client'
+import { useState } from "react";
 
+// додавати задачі;
+// відмічати задачі як виконані/невиконані;
+// видаляти задачі.
+// Технічні умови
+// React + Function Components + TypeScript.
+// Використовувати лише useState для стану.
+// Стилізація будь-яка (можна прості класи без бібліотек).
+// Вимоги до UI
+// Поле вводу + кнопка Add (додавати по Enter теж ок).
+// Список задач:
+// чекбокс для зміни стану completed;
+// текст задачі (перекреслений, якщо виконано);
+// кнопка Delete для видалення.
+// Якщо список порожній — показати підказку «No tasks yet».
 
-import ACSystemDashboard, { ACSystemData } from "./component";
+interface Todo {
+id: number;
+text: string;
+completed: boolean;
+}
 
-// Технічні вимоги:
-// Типізація:
-// Типізувати дані про кожну систему кондиціонування (ACSystemData), включно з:
-// id (рядок)
-// location (місце розташування, рядок)
-// temperature (температура, число)
-// humidity (вологість, число)
-// energyConsumption (енергоспоживання, число)
-// isActive (стан увімкнено/вимкнено, булеве значення)
-// Ініціалізація даних:
-// Компонент повинен приймати список систем як проп data і зберігати його у локальному стані useState.
-// Виведення інформації:
-// Для кожної системи відобразити:
-// Місцезнаходження (location)
-// Температуру (temperature) з підсвічуванням кольором:
-// 27°C — червоний
-// 25–27°C — помаранчевий
-// < 25°C — зелений
-// Вологість (humidity)
-// Енергоспоживання (energyConsumption)
-// Статус (ON/OFF)
-// Кнопку перемикання статусу (Turn ON/OFF)
-// Функціональність перемикання статусу:
-// При натисканні на кнопку змінювати стан isActive відповідної системи (вмикати/вимикати).
-// Стилизація:
-// Відобразити кожну систему у вигляді окремої картки зі стилями: рамка, відступи, ширина блоку, border-radius.
-// Всі картки повинні розташовуватись у flex-контейнері з обгортанням (flex-wrap) і відступами між ними (gap).
+const TodoApp = () => {
+  const [todoList, setTodoList] = useState<Todo[]>([])
+  const [value, setValue] = useState<string>('')
 
+  const handleAddTodo = () => {
+    if (!value) return;
+    setTodoList((prev) => [{id: Date.now(), text: value, completed: false}, ...prev])
+    setValue('')
+  }
 
-export const exampleData: ACSystemData[] = [
-  {
-    id: 'ac-101',
-    location: 'Room 101',
-    temperature: 22.5,
-    humidity: 45,
-    energyConsumption: 3.2,
-    isActive: true,
-  },
-  {
-    id: 'ac-102',
-    location: 'Room 102',
-    temperature: 25,
-    humidity: 50,
-    energyConsumption: 2.8,
-    isActive: false,
-  },
-  {
-    id: 'ac-103',
-    location: 'Room 103',
-    temperature: 28,
-    humidity: 50,
-    energyConsumption: 2.8,
-    isActive: false,
-  },
-];
+  const handleToggleStatus = (id: number) => {
+    setTodoList(prev => prev.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo))
+  }
 
-const App2 = () => <ACSystemDashboard data={exampleData} />
+  const handleDeleteTodo = (id: number) => {
+    setTodoList(prev => prev.filter(todo => todo.id !== id))
+  }
 
-export default App2
+  return (
+    <div className="bg-white">
+        <input className="h-10 border-2" placeholder="Add your todo..." type="text" value={value} onChange={(e) => setValue(e.target.value)}  />
+        <button className="cursor-pointer border-2 bg-orange-300 p-3" onClick={handleAddTodo}>ADD TODO</button>
+      
+      <ul>
+        {todoList.map(todo => 
+          <li key={todo.id}>
+            <span className={todo.completed ? 'text-green-900 font-bold' : 'text-black-900'}>{todo.text}</span>
+            <input className="m-3" type='checkbox' checked={todo.completed} onChange={() => handleToggleStatus(todo.id)} />
+            <button className="cursor-pointer border-2 bg-red-300 p-1" onClick={() => handleDeleteTodo(todo.id)}>DELETE</button> 
+          </li>
+        )}
+      </ul>
+    </div>
+  )
+
+}
+
+export default TodoApp

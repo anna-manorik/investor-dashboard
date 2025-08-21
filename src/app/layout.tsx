@@ -7,6 +7,7 @@ import { SessionProvider } from "next-auth/react";
 import Providers from './providers';
 import { UserProvider } from "./context/UserContext";
 import { ToastContainer } from "react-toastify";
+import { Session } from "next-auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,18 +26,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  session,
 }: Readonly<{
   children: React.ReactNode;
+  session?: Session;
 }>) {
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
-        <UserProvider><Providers>
-          <Header />
-          <main className="pt-4">{children}</main>
-          <ToastContainer position="top-right" autoClose={3000} />
-          <Footer />
-        </Providers></UserProvider>
+          <Providers><UserProvider>
+            <Header />
+            <main className="pt-4">{children}</main>
+            <ToastContainer position="top-right" autoClose={3000} />
+            <Footer />
+          </UserProvider></Providers>
       </body>
     </html>
   );

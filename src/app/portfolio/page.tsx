@@ -11,6 +11,7 @@ import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const initialValues: PortfolioProps = {
                 type: "" as AssetType,
@@ -40,16 +41,19 @@ const validationSchema = Yup.object({
             }
 
 export default function Portfolio() {
-    const { user } = useUser();
+    const { user, loading } = useUser();
     const [portfolio, setPortfolio] = useState<PortfolioProps[]>()
     const [stockPrices, setStockPrices] = useState<StockPriceProps[]>([])
+    const { data: session, status } = useSession();
+
+   
 
     // if (!user) return <p className="text-orange-900">Loading...</p>
     
         const fetchPortfolio = async () => {
-            if (!user?.uid) return;
-
-            const userRef = doc(db, "users", user.uid);
+            if (!session?.user?.id) return;
+            
+            const userRef = doc(db, "users", session.user.id);
             const unsubscribe = onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -94,11 +98,10 @@ export default function Portfolio() {
             }
         }
 
-
-  
     useEffect(() => {
         fetchPortfolio();
-    }, [user?.uid]);
+        
+    }, [session?.user?.id]);
 
     useEffect(() => {
         if (portfolio && portfolio?.length > 0) {
@@ -114,13 +117,21 @@ export default function Portfolio() {
         [stockPrices]
     );
 
+    if (status === 'loading') {
+        return <p className="text-white">Завантаження...</p>;
+    }
+
+    if (!user) {
+        return <p>Ви не авторизовані</p>;
+    }
+
     const handleAddAsset = async (values: PortfolioProps, actions: FormikHelpers<PortfolioProps>) => {
-            if (!user?.uid) {
+            if (!session?.user.id) {
                 throw new Error("UID користувача не знайдено. Можливо, він не авторизований.");
             }
             
             try{
-                await updateDoc(doc(db, "users", user.uid), {
+                await updateDoc(doc(db, "users", session.user.id), {
                     portfolio: arrayUnion({
                     type: values.type,
                     name: values.name,
@@ -315,7 +326,5 @@ export default function Portfolio() {
     </div>
   );
 }
-function useAuth(): { user: any; } {
-    throw new Error("Function not implemented.");
-}
+
 

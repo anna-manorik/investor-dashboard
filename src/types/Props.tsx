@@ -28,6 +28,7 @@ export enum AssetType {
 }
 
 export type PortfolioProps = {
+    id?: string,
     type: AssetType;
     name: string;
     quantity: number;

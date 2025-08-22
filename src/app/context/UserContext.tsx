@@ -20,8 +20,6 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
 
-  console.log('session!!!!!', session)
-
   return (
     <UserContext.Provider
       value={{ id: session?.user?.id ?? '', user: session?.user ?? null, loading: status === "loading" }}

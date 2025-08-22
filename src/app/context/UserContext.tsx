@@ -1,12 +1,16 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { UserContextType, UserData } from "@/types/Props";
+import { createContext, useContext } from "react";
+import { useSession } from "next-auth/react";
+
+type UserContextType = {
+  id?: string,
+  user: any;
+  loading: boolean;
+};
 
 const UserContext = createContext<UserContextType>({
+  id: '',
   user: null,
   loading: true,
 });
@@ -14,35 +18,12 @@ const UserContext = createContext<UserContextType>({
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-        const userData = userDoc.data();
-
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          name: userData?.name,
-          role: userData?.role,
-          accountType: userData?.accountType,
-          image: userData?.image,
-          // portfolio:[],
-        });
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const { data: session, status } = useSession();
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider
+      value={{ id: session?.user?.id ?? '', user: session?.user ?? null, loading: status === "loading" }}
+    >
       {children}
     </UserContext.Provider>
   );

@@ -1,99 +1,64 @@
+// Завдання: Todo App 
+// Створити односторінковий «Todo App», який дозволяє:
 'use client'
+import { useState } from "react";
 
-import { useEffect, useMemo, useState } from "react"
+// додавати задачі;
+// відмічати задачі як виконані/невиконані;
+// видаляти задачі.
+// Технічні умови
+// React + Function Components + TypeScript.
+// Використовувати лише useState для стану.
+// Стилізація будь-яка (можна прості класи без бібліотек).
+// Вимоги до UI
+// Поле вводу + кнопка Add (додавати по Enter теж ок).
+// Список задач:
+// чекбокс для зміни стану completed;
+// текст задачі (перекреслений, якщо виконано);
+// кнопка Delete для видалення.
+// Якщо список порожній — показати підказку «No tasks yet».
 
-// Реалізувати компонент для відображення списку користувачів
-// Мета:
-// Створити компонент UserList, який отримує список користувачів з API, дозволяє шукати по імені та переглядати детальну інформацію про обраного користувача.
-
-
-
-// Технічні вимоги:
-// Отримання даних з API:
-// Зробити GET-запит до https://jsonplaceholder.typicode.com/users.
-// Зберегти отриманий список користувачів у стані.
-// Вивід списку користувачів:
-// Відобразити імена всіх користувачів у вигляді списку.
-// Кожен елемент списку має бути клікабельним.
-// Пошук користувача:
-// Реалізувати інпут для пошуку по імені.
-// Пошук повинен бути нечутливим до регістру.
-// Фільтрація має відбуватися в реальному часі (під час вводу).
-// Виведення деталей користувача:
-// При кліку на користувача у списку — показати детальну інформацію:
-// Ім’я
-// Email
-// Username
-// Додати кнопку для закриття блоку з деталями користувача.
-// Обробка станів:
-// Виводити повідомлення Loading... під час завантаження.
-// Виводити повідомлення про помилку, якщо запит завершився з помилкою.
-// Оптимізація:
-// Використати useMemo для оптимізації фільтрації списку.
-
-type User = {
-    id: number,
-    name: string,
-    username: string,
-    email: string,
+interface Todo {
+id: number;
+text: string;
+completed: boolean;
 }
 
-const UserList = () => {
-    const [ error, setErrorMessege ] = useState<string | null>(null)
-    const [ usersList, setUsersList] = useState<User[]>([])
-    const [ showUserInfo, setShowUserInfo ] = useState<User | null>(null)
-    const [ search, setSearch ] = useState<string>('')
+const TodoApp = () => {
+  const [todoList, setTodoList] = useState<Todo[]>([])
+  const [value, setValue] = useState<string>('')
 
-    
+  const handleAddTodo = () => {
+    if (!value) return;
+    setTodoList((prev) => [{id: Date.now(), text: value, completed: false}, ...prev])
+    setValue('')
+  }
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch('https://jsonplaceholder.typicode.com/users')
+  const handleToggleStatus = (id: number) => {
+    setTodoList(prev => prev.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo))
+  }
 
-                const data = await response.json()
-                setUsersList(data)
+  const handleDeleteTodo = (id: number) => {
+    setTodoList(prev => prev.filter(todo => todo.id !== id))
+  }
 
-                console.log('success', data)
-            } catch (error) {
-                setErrorMessege((error as Error).message)
-            } finally {
+  return (
+    <div className="bg-white">
+        <input className="h-10 border-2" placeholder="Add your todo..." type="text" value={value} onChange={(e) => setValue(e.target.value)}  />
+        <button className="cursor-pointer border-2 bg-orange-300 p-3" onClick={handleAddTodo}>ADD TODO</button>
+      
+      <ul>
+        {todoList.map(todo => 
+          <li key={todo.id}>
+            <span className={todo.completed ? 'text-green-900 font-bold' : 'text-black-900'}>{todo.text}</span>
+            <input className="m-3" type='checkbox' checked={todo.completed} onChange={() => handleToggleStatus(todo.id)} />
+            <button className="cursor-pointer border-2 bg-red-300 p-1" onClick={() => handleDeleteTodo(todo.id)}>DELETE</button> 
+          </li>
+        )}
+      </ul>
+    </div>
+  )
 
-            }
-            
-        }
-
-        fetchUsers()
-        
-    }, [])
-
-    const searchUsers = useMemo(() => {
-        return usersList.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
-    }, [search, usersList])
-
-    // if(error) error
-
-    return (
-        <>
-            <input type='text' value={search} onChange={(e) => setSearch(e.target.value)} />
-
-            <ul>
-                {searchUsers.map(user => (
-                    <li key={user.id} className="color-white cursor-pointer" onClick={() => setShowUserInfo(user)}>{user.name}</li>
-                ))}
-            </ul>
-
-            {showUserInfo && (
-                <div>
-                    <p>{showUserInfo.name}</p>
-                    <p>{showUserInfo.username}</p>
-                    <p>{showUserInfo.email}</p>
-                    <button onClick={() => setShowUserInfo(null)}>HIDE</button>
-                </div>
-            )}
-            
-        </>
-    )
 }
 
-export default UserList
+export default TodoApp

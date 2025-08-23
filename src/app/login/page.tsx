@@ -6,11 +6,9 @@ import * as Yup from 'yup';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { AuthUser } from '@/types/Props';
 import Link from 'next/link';
-import { signIn, signOut, useSession } from 'next-auth/react';
-import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signIn, useSession } from 'next-auth/react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { useUser } from '../context/UserContext';
-// import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { useRouter } from 'next/navigation';
 
@@ -29,7 +27,12 @@ const Login = () => {
     const router = useRouter();
     
     const handleLogin = async (values: AuthUser, actions: FormikHelpers<AuthUser>) => {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
+        // await signInWithEmailAndPassword(auth, values.email, values.password);
+        await signIn("credentials", {
+            email: values.email,
+            password: values.password,
+            redirect: false,
+        });
         actions.resetForm();
         toast.success(`Welcome, ${values.email}! You was logged!`);
         router.push('/')
@@ -42,7 +45,7 @@ const Login = () => {
     
     return (
         <div className='flex flex-col items-center'>
-        
+        <p className='text-white mb-5'>Увійдіть або зареєструйтесь</p>
         <Formik initialValues={{email: '', password: ''}} onSubmit={(values, actions) => {handleLogin(values, actions)}} validationSchema={validationSchema}>
                     <Form className="flex flex-col mb-10 max-w-md mx-auto p-4 bg-white rounded shadow-md text-gray-900">
                         <Field as="input" name="email" type="email" placeholder="email" className="h-10 border-4 border-yellow-400" />
